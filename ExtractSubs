@@ -1,0 +1,20 @@
+#!/bin/bash
+
+usage="$(basename "$0") <Source Directory> <Track ID> <Extracted File Type (Filename Extension)> [<Filename Suffix>]
+\nExample: $(basename "$0") \"/Folder/\" \"1\" \"srt\" \".subtitles\""
+
+#  $1 = Source Directory
+#  $2 = Track ID
+#  $3 = File Type
+#  $4 = Filename Suffix
+
+if [ -d "$1" ] && ([ "$#" == 3 ] || [ "$#" == 4 ]); then
+	cd -- "$1"
+	for file in "$PWD"/* ; do
+		if [[ "$file" == *".mkv" ]]; then mkvextract tracks "$file" "$2":"$(basename "$file" .mkv)""$4"."$3"; fi
+		done
+
+else
+	echo -e $usage
+fi
+exit
