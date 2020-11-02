@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ ! "$#" == 2 ]; then
+	echo -e "$(basename "$0") <Source Directory> <Destination Directory>
+\nExample: $(basename "$0") \"/Source Folder/\" \"/Links Destination Folder/\""
+
+
+elif [ ! -d "$1" ]; then
+	echo -e "Source folder "$1" doesn't exist."
+
+else
+	SOURCEDIR="$1"
+	DESTDIR="$2"
+
+	cd -- "$SOURCEDIR"
+	find -type d -exec mkdir --parents -- "$DESTDIR"/{} \;
+	find * -type f -name "*.mkv" -exec ln --symbolic -- "$SOURCEDIR"/{} "$DESTDIR"/{} \;
+
+fi
+exit
