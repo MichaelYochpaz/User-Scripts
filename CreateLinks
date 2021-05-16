@@ -5,16 +5,21 @@ if [ ! "$#" == 2 ]; then
 \nExample: $(basename "$0") \"/Source Folder/\" \"/Links Destination Folder/\""
 
 
-elif [ ! -d "$1" ]; then
-	echo -e "Source folder "$1" doesn't exist."
+elif [[ ! -d "$1" && ! -f "$1" ]]; then
+	echo -e "Source file / folder "$1" doesn't exist."
 
 else
-	SOURCEDIR="$1"
+	SOURCE="$1"
 	DESTDIR="$2"
 
-	cd -- "$SOURCEDIR"
-	find -type d -exec mkdir --parents -- "$DESTDIR"/{} \;
-	find * -type f -name "*.mkv" -exec ln --symbolic -- "$SOURCEDIR"/{} "$DESTDIR"/{} \;
+	if [ -f "$SOURCE" ]; then
+		ln --symbolic -- "$SOURCE" "$DESTDIR"
+
+	else
+		cd -- "$SOURCE"
+		find -type d -exec mkdir --parents -- "$DESTDIR"/{} \;
+		find * -type f -name "*.mkv" -exec ln --symbolic -- "$SOURCE"/{} "$DESTDIR"/{} \;
+	fi
 
 fi
 exit
