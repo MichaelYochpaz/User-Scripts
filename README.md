@@ -2,7 +2,7 @@
 A collection of short random user scripts I made that aren't worthy of a standalone repository.
 ## Scripts:
 ### CreateLinks:
-A Bash script to generate a symlink for each file within folder (works with nested folders).
+A Bash script to generate a symlink for a file or each file within folder (works with nested folders).
 
 Usage: ```CreateLinks <Source Directory> <Destination Directory>```
 
