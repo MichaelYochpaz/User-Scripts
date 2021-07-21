@@ -18,7 +18,7 @@ else
 	else
 		cd -- "$SOURCE"
 		find -type d -exec mkdir --parents -- "$DESTDIR"/{} \;
-		find * -type f -name "*.mkv" -exec ln --symbolic -- "$SOURCE"/{} "$DESTDIR"/{} \;
+		find * -type f -iregex ".*\(mkv\|mp4\|flac\|mp3\)" -exec ln --symbolic -- "$SOURCE"/{} "$DESTDIR"/{} \;
 	fi
 
 fi
