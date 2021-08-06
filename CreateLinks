@@ -1,9 +1,11 @@
 #!/bin/bash
 
+#  Usage:
+#  CreateLinks <Source Directory> <Destination Directory>
+
 if [ ! "$#" == 2 ]; then
 	echo -e "$(basename "$0") <Source Directory> <Destination Directory>
 \nExample: $(basename "$0") \"/Source Folder/\" \"/Links Destination Folder/\""
-
 
 elif [[ ! -d "$1" && ! -f "$1" ]]; then
 	echo -e "Source file / folder "$1" doesn't exist."
@@ -21,6 +23,5 @@ else
 		find * -type f -iregex ".*\(mkv\|mp4\|flac\|mp3\)" -exec ln --symbolic -- "$SOURCE"/{} "$DESTDIR"/{} \;
 		find * -type d -empty -delete
 	fi
-
 fi
 exit
