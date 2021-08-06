@@ -20,6 +20,7 @@ Usage: ```CreateLinks <Source Directory> <Destination Directory>```
 <br />
 
 ### ExtractSubs:
-A Bash script to extract specific subtitles ID from mkv files (used mainly to extract subtitles in a specific language from all episodes of a TV series) 
+A Bash script to extract specific subtitles ID from mkv files (used mainly to extract subtitles in a specific language from all episodes of a TV series).
+Requires ffmpeg to be installed to work.
 
-  Usage: ```ExtractSubs <File / Directory> <Track ID> <Extracted File Type (File Extension)> [<Filename Suffix>]```
+Usage: ```ExtractSubs <File / Directory> <Track ID> <File Format>```
