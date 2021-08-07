@@ -11,7 +11,7 @@
 #
 #  Usage:
 #  extrack <File / Directory> <Track ID> <File Format>
-#  ----------------------------------------------------
+#  ---------------------------------------------------
 
 usage="$(basename \"$0\") <File / Directory> <Track ID> <File Format>
 \nExamples: $(basename "$0") \"/media/movies/file.mkv\" 1 srt
