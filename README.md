@@ -12,10 +12,12 @@ A script for removing blur and registration banner, and enabling right mouse cli
 <br />
 
 ## Bash Scripts:
-### CreateLinks:
-A Bash script to generate symlink for each media file within folder (works with single files, folders, and nested folders).
+### genlinks:
+A script for generating symlinks.  
+The script will duplicate source's directory structure to destination with symlinks instead of files.  
+File extensions can be passed to allow filtering and will allow creating symlinks only for files with the extensions that were passed.
 
-Usage: ```CreateLinks <Source Directory> <Destination Directory>```
+Usage: ```genlinks <Source File / Directory> <Destination Directory> [<File Extensions>...]```
 
 <br />
 
