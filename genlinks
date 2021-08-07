@@ -9,10 +9,10 @@
 #  symlinks only for files with the file extensions that were passed.
 #
 #  Usage:
-#  genlinks <Source File / Directory> <Destination Directory> [<File Extsnesions>...]
+#  genlinks <Source File / Directory> <Destination Directory> [<File Extensions>...]
 #  ----------------------------------------------------
 
-usage="$(basename \"$0\") <Source File / Directory> <Destination Directory> [<File Extsnesions>...]\n
+usage="$(basename \"$0\") <Source File / Directory> <Destination Directory> [<File Extensions>...]\n
 Examples: $(basename "$0") \"/downloads/movie.mkv\" \"/media/\"
           $(basename "$0") \"/downloads/\" \"/media/\" mkv mp4"
 
