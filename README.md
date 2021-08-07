@@ -1,5 +1,5 @@
 # User-Scripts
-A collection of short random scripts I made that aren't worthy of a standalone repository.  
+A collection of short random scripts I've made that aren't worthy of a standalone repository.  
 Browser userscripts require an addons like [Violentmonkey](https://github.com/violentmonkey/violentmonkey) to install and run.
 
 <br />
@@ -19,8 +19,10 @@ Usage: ```CreateLinks <Source Directory> <Destination Directory>```
 
 <br />
 
-### ExtractSubs:
-A Bash script to extract specific subtitles ID from mkv files (used mainly to extract subtitles in a specific language from all episodes of a TV series).
+### extrack:
+A script for extracting a specific track id from media files that are supported by ffmpeg.
+Input can be either a file, or a directory (which will run the script on all files within the folder).
+
 Requires ffmpeg to be installed to work.
 
-Usage: ```ExtractSubs <File / Directory> <Track ID> <File Format>```
+Usage: ```extrack <File / Directory> <Track ID> <File Format>```
