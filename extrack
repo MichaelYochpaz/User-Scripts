@@ -4,13 +4,13 @@
 #  A script for extracting a specific track id from
 #  media files that are supported by ffmpeg.
 #
-#  Requries ffmpeg to be installed to work.
+#  Passing a directory will extract the track id from
+#  all ffmpeg compatible media files inside the folder.
+#
+#  - Requries ffmpeg to be installed to work.
 #
 #  Usage:
 #  extrack <File / Directory> <Track ID> <File Format>
-#
-#  Passing a directory will extract the track id from
-#  all ffmpeg compatible media files inside the folder)
 #  ----------------------------------------------------
 
 usage="$(basename \"$0\") <File / Directory> <Track ID> <File Format>
