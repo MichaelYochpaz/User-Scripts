@@ -1,0 +1,53 @@
+#!/bin/bash
+
+#  --------------------- genlinks ---------------------
+#  A script for generating symlinks. 
+#  The script will duplicate source's directory structure
+#  to destination with symlinks instead of files.
+#
+#  Passing file extensions allow filtering and will create 
+#  symlinks only for files with the file extensions that were passed.
+#
+#  Usage:
+#  genlinks <Source File / Directory> <Destination Directory> [<File Extsnesions>...]
+#  ----------------------------------------------------
+
+usage="$(basename \"$0\") <Source File / Directory> <Destination Directory> [<File Extsnesions>...]\n
+Examples: $(basename "$0") \"/downloads/movie.mkv\" \"/media/\"
+          $(basename "$0") \"/downloads/\" \"/media/\" mkv mp4"
+
+# Assure a valid amount of command-line arguments was passed
+if (($# >= 2)); then
+	# Assure source file / directory exists
+	if [[ ! -e "$1" ]]; then
+		echo -e "Source file / folder "$1" doesn't exist."
+
+	else
+		# Single file
+		if [[ -f "$1" ]]; then
+			ln --symbolic -- "$1" "$2"
+
+		# Directory
+		elif  [[ -d "$1" ]]; then
+			# Default value - matches all filenames
+			regex=".*"
+
+			# If file extensions were passed
+			if [[ $# > 2 ]]; then
+				# Generate and replace default iregex expression
+				regex="$(echo ".*\(${@:3}\)" | sed 's/ /\\|/g')"
+			fi
+			
+			cd -- "$1"
+			# Reconstruct source directory structure in destination directory
+			find -type d -exec mkdir --parents -- "$2"/{} \;
+			# Generate symlinks (using pwd to make links work even if user entered relative path)
+			find -type f -iregex "$regex" -exec ln --symbolic -- "$(pwd)"/{} "$2"/{} \;
+			# Remove empty folders
+			find -type d -empty -delete
+		fi
+	fi
+
+else
+    echo -e "$usage"
+fi
