@@ -12,7 +12,7 @@
 #  genlinks <Source File / Directory> <Destination Directory> [<File Extensions>...]
 #  ----------------------------------------------------
 
-usage="$(basename \"$0\") <Source File / Directory> <Destination Directory> [<File Extensions>...]\n
+usage="$(basename "$0") <Source File / Directory> <Destination Directory> [<File Extensions>...]\n
 Examples: $(basename "$0") \"/downloads/movie.mkv\" \"/media/\"
           $(basename "$0") \"/downloads/\" \"/media/\" mkv mp4"
 
@@ -23,12 +23,16 @@ if (($# >= 2)); then
 		echo -e "Source file / folder "$1" doesn't exist."
 
 	else
+		# Convert paths to absolute (in case they're relative)
+		source_dir="$(realpath "$1")"
+		destination_dir="$(realpath "$2")"
+
 		# Single file
-		if [[ -f "$1" ]]; then
-			ln --symbolic -- "$1" "$2"
+		if [[ -f "$source_dir" ]]; then
+			ln --symbolic -- "$source_dir" "$2"
 
 		# Directory
-		elif  [[ -d "$1" ]]; then
+		elif  [[ -d "$source_dir" ]]; then
 			# Default value - matches all filenames
 			regex=".*"
 
@@ -38,11 +42,11 @@ if (($# >= 2)); then
 				regex="$(echo ".*\(${@:3}\)" | sed 's/ /\\|/g')"
 			fi
 			
-			cd -- "$1"
+			cd -- "$source_dir"
 			# Reconstruct source directory structure in destination directory
-			find -type d -exec mkdir --parents -- "$2"/{} \;
-			# Generate symlinks (using pwd to make links work even if user entered relative path)
-			find -type f -iregex "$regex" -exec ln --symbolic -- "$(pwd)"/{} "$2"/{} \;
+			find * -type d -exec mkdir --parents -- "$destination_dir"/"{}" \;
+			# Generate symlinks
+			find * -type f -iregex "$regex" -exec ln --symbolic -- "$source_dir"/"{}" "$destination_dir"/"{}" \;
 			# Remove empty folders
 			find -type d -empty -delete
 		fi
