@@ -7,7 +7,8 @@ For using the user-scripts, a browser add-on like [Violentmonkey](https://github
 ## Browser Userscripts:
 ### TheWorker-Bypass:
 Remove blur and mid screen banner, and enable right-click and selection on [theworker.co.il](https://theworker.co.il).  
-[Install Link](https://raw.githubusercontent.com/MichaelYochpaz/User-Scripts/main/TheWorker-Bypass.js)
+[Install Link](https://raw.githubusercontent.com/MichaelYochpaz/User-Scripts/main/TheWorker-Bypass.user.js)
+
 
 <br />
 

@@ -7,8 +7,8 @@
 // @include     https://theworker.co.il/*
 // @grant       GM_addStyle
 // @description Remove blur and mid screen banner, and enable right-click and selection on theworker.co.il.
-// @downloadURL https://raw.githubusercontent.com/MichaelYochpaz/User-Scripts/main/TheWorker-Bypass.js
-// @updateURL   https://raw.githubusercontent.com/MichaelYochpaz/User-Scripts/main/TheWorker-Bypass.js
+// @downloadURL https://raw.githubusercontent.com/MichaelYochpaz/User-Scripts/main/TheWorker-Bypass.user.js
+// @updateURL   https://raw.githubusercontent.com/MichaelYochpaz/User-Scripts/main/TheWorker-Bypass.user.js
 // ==/UserScript==
 
 // Enable right-click
