@@ -1,12 +1,12 @@
 # User-Scripts
-A collection of short random scripts I've made that aren't worthy of a standalone repository.  
-Browser userscripts require an addons like [Violentmonkey](https://github.com/violentmonkey/violentmonkey) to install and run.
+A collection of small user-scripts that aren't worthy of a standalone repository.  
+For using the user-scripts, a browser add-on like [Violentmonkey](https://github.com/violentmonkey/violentmonkey) is required to be installed.
 
 <br />
 
 ## Browser Userscripts:
 ### TheWorker-Bypass:
-A script for removing blur and registration banner, and enabling right mouse click and text selection on [theworker.co.il](https://theworker.co.il).  
+Remove blur and mid screen banner, and enable right-click and selection on [theworker.co.il](https://theworker.co.il).  
 [Install Link](https://raw.githubusercontent.com/MichaelYochpaz/User-Scripts/main/TheWorker-Bypass.js)
 
 <br />
