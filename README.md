@@ -9,6 +9,11 @@ For using the user-scripts, a browser add-on like [Violentmonkey](https://github
 Remove blur and mid screen banner, and enable right-click and selection on [theworker.co.il](https://theworker.co.il).  
 [Install Link](https://raw.githubusercontent.com/MichaelYochpaz/User-Scripts/main/TheWorker-Bypass.user.js)
 
+<br />
+
+### RealPython-Bypass:
+Remove registartion / login pop-up, and restore scrolling on [realpython.com](https://realpython.com).  
+[Install Link](https://raw.githubusercontent.com/MichaelYochpaz/User-Scripts/main/RealPython-Bypass.user.js)
 
 <br />
 
