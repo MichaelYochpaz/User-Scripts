@@ -3,6 +3,7 @@
 // @namespace   https://github.com/MichaelYochpaz/User-Scripts
 // @icon        https://cdn.realpython.com/static/favicon.ico
 // @author      Michael Yochpaz
+// @license     MIT
 // @version     1.0.1
 // @include     https://realpython.com/*
 // @description Remove registration / login pop-up on realpython.com.

@@ -3,6 +3,7 @@
 // @namespace   https://github.com/MichaelYochpaz/User-Scripts
 // @icon        https://www.theworker.co.il/favicon.ico
 // @author      Michael Yochpaz
+// @license     MIT
 // @version     1.0.2
 // @include     https://theworker.co.il/*
 // @grant       GM_addStyle
