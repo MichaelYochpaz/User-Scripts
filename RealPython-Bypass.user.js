@@ -6,7 +6,7 @@
 // @version     1.0.0
 // @include     https://realpython.com/*
 // @grant       GM_addStyle
-// @description Remove registartion / login pop-up, and restore scrolling on realpython.com.
+// @description Remove registration / login pop-up, and restore scrolling on realpython.com.
 // @downloadURL https://raw.githubusercontent.com/MichaelYochpaz/User-Scripts/main/RealPython-Bypass.js
 // @updateURL   https://raw.githubusercontent.com/MichaelYochpaz/User-Scripts/main/RealPython-Bypass.js
 // ==/UserScript==
