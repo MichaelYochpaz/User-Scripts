@@ -12,7 +12,7 @@ Remove blur and mid screen banner, and enable right-click and selection on [thew
 <br />
 
 ### RealPython-Bypass:
-Remove registration / login pop-up, and restore scrolling on [realpython.com](https://realpython.com).  
+Remove registration / login pop-up on [realpython.com](https://realpython.com).  
 [Install Link](https://raw.githubusercontent.com/MichaelYochpaz/User-Scripts/main/RealPython-Bypass.user.js)
 
 <br />
