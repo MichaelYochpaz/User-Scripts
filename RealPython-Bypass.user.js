@@ -13,7 +13,7 @@
 
 // Remove Registration Pop-up
 document.getElementById("rprw").remove();
-document.getElementsByClassName("modal-backdrop").remove()
+document.getElementsByClassName("modal-backdrop").remove();
 
 // Restore Scrolling
 GM_addStyle (`.modal-open {overflow: scroll !important}`);
