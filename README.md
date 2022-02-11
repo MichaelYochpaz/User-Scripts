@@ -34,3 +34,13 @@ Path input can be either a file, or a directory (which will run the script on al
 Requires ffmpeg to be installed to work.
 
 Usage: ```extrack <File / Directory> <Track ID> <File Format>```
+
+<br />
+
+### blackdetect:
+A script for generating a blackdetect log for mkv files.
+Path input can be either a file, or a directory (which will run the script on all files within the folder).
+
+Requires ffmpeg to be installed to work.
+
+Usage: ```blackdetect <File / Directory>```
