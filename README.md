@@ -28,8 +28,8 @@ Usage: ```genlinks <Source File / Directory> <Destination Directory> [<File Exte
 <br />
 
 ### extrack:
-A script for extracting a specific track id from media files that are supported by ffmpeg.
-Input can be either a file, or a directory (which will run the script on all files within the folder).
+A script for extracting a specific track id from mkv files.
+Path input can be either a file, or a directory (which will run the script on all files within the folder).
 
 Requires ffmpeg to be installed to work.
 

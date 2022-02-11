@@ -2,7 +2,7 @@
 
 #  --------------------- extrack ---------------------
 #  A script for extracting a specific track id from
-#  media files that are supported by ffmpeg.
+#  mkv files that are supported by ffmpeg.
 #
 #  Requirements:
 #    FFmpeg
