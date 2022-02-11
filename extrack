@@ -4,37 +4,62 @@
 #  A script for extracting a specific track id from
 #  media files that are supported by ffmpeg.
 #
-#  Passing a directory will extract the track id from
-#  all ffmpeg compatible media files inside the folder.
-#
-#  - Requries ffmpeg to be installed to work.
+#  Requirements:
+#    FFmpeg
 #
 #  Usage:
-#  extrack <File / Directory> <Track ID> <File Format>
+#    extrack <File / Directory> <Track ID> <File Format>
+#
+#  Notes:
+#    Passing a directory will extract the track id from
+#    all ffmpeg compatible media files inside the folder.
 #  ---------------------------------------------------
 
-usage="$(basename \"$0\") <File / Directory> <Track ID> <File Format>
-\nExamples: $(basename "$0") \"/media/movies/file.mkv\" 1 srt
-\n          $(basename "$0") \"/media/movies\" 1 srt"
 
-ffmpeg_extract()
+#######################################
+# Extract a track from an mkv file.
+#
+# Arguments:
+#   #1 - Path to an mkv file
+#   #2 - Track ID to extract
+#   #3 - File format to save track as
+#
+# Outputs:
+#   Extract the track to a separate file.
+#######################################
+function ffmpeg_extract
 {
-    ffmpeg -hide_banner -v error -stats -i "$1" -c copy -map 0:$2 "$(basename "$1" | sed "s/^\(.*\)\..*$/\1/").$3" -y
+    result_file_name="$(basename "$1" | sed "s/^\(.*\)\..*$/\1/").${3}"
+    ffmpeg -hide_banner -v "error" -stats -i "$1" -c copy -map 0:${2} "$result_file_name" -y
 }
 
-# Assure a valid amount of command-line arguments was passed
-if [[ $# == 3 ]]; then
-    # Directory
-    if [[ -d "$1" ]]; then
-        cd -- "$1"
-        for file in "$1"/* ; do
-            ffmpeg_extract "$file" $2 $3
-            done
+function pring_usage
+{
+    echo "Usage: $(basename "$0") <File / Directory> <Track ID> <File Format>"
+}
 
-    # Single file
-    elif [[ -f "$1" ]]; then
-        ffmpeg_extract "$1" $2 $3
-    fi
-else
-    echo -e "$usage"
+
+# Assure a valid amount of command-line arguments was passed
+if [[ $# -lt 3 ]]; then
+    echo "Error: Missing parameters." >&2
+    pring_usage
+    exit 1
+fi
+
+# Assure file / directory exists
+if [[ ! -e "$1" ]]; then
+    echo "Error: Directory / file \"$1\" not found." >&2
+    pring_usage
+    exit 1
+fi
+
+# Path parameter ($1) is a directory
+if [[ -d "$1" ]]; then
+    for file in "$1"/*.mkv ; do
+        ffmpeg_extract "$file" "$2" "$3"
+    done
+
+# Path parameter ($1) is a file
+elif [[ -f "$1" ]]; then
+    ffmpeg_extract "$1" "$2" "$3"
 fi
