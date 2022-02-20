@@ -54,23 +54,26 @@ elif  [[ -d "$source_dir" ]]; then
 	cd -- "$source_dir"
 
 	# Generate symlinks for files in root directory
-	find * -type f -maxdepth 0 -iregex "$regex" \
+	find * -maxdepth 0 -type f -iregex "$regex" \
 	-exec ln --symbolic -- "$source_dir"/{} "$destination_dir"/{} \;
 
 	# List of files matching the file extensions filter that are in subdirectories
 	subdir_files="$(find * -mindepth 1 -type f -iregex "$regex")"
 
-	# Generate subdirectories
-	while read path; do
-		new_subdir_path="$destination_dir"/$(dirname "$path")
+	# Check whether there are subdirectories
+	if [[ ! -z $subdir_files ]]; then
+		# Generate subdirectories
+		while read path; do
+			new_subdir_path="$destination_dir"/$(dirname "$path")
 
-		if [[ ! -d "$new_subdir_path" ]]; then
-			mkdir --parents "$new_subdir_path"
-		fi
-	done <<< "$subdir_files"
+			if [[ ! -d "$new_subdir_path" ]]; then
+				mkdir --parents "$new_subdir_path"
+			fi
+		done <<< "$subdir_files"
 
-	# Generate symlinks
-	while read path; do
-		ln --symbolic -- "$source_dir"/"$path" "$destination_dir"/"$path"
-	done <<< "$subdir_files"
+		# Generate symlinks
+		while read path; do
+			ln --symbolic -- "$source_dir"/"$path" "$destination_dir"/"$path"
+		done <<< "$subdir_files"
+	fi
 fi
