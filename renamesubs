@@ -1,0 +1,54 @@
+#!/bin/bash
+
+#  ------------------- renamesubs -------------------
+#  A script for renaming subtitles file names to match
+#  corresponding media files on the same folder,
+#  matched by season and episode numbers (SXXEXX format).
+#
+#  Usage:
+#    renamesubs <Directory> <Media Extension> <Subtitles Extension> [Suffix]
+#
+#  Arguments:
+#    1. Directory - The directory to search and replace media files and subtitles.
+#    2. Media Extension - Media file extension to look for.
+#    3. Subtitles Extension - Subtitles file extension to look for.
+#    4. Suffix (optional)- An optional suffix to append to renamed subtitles file (before file extension).
+#  --------------------------------------------------
+
+function pring_usage
+{
+    echo "Usage: $(basename "$0") <Directory> <Media Extension> <Subtitles Extension> [Suffix]"
+}
+
+
+# Assure a valid amount of command-line arguments was passed
+if [[ $# -lt 3 ]]; then
+    echo "Error: Missing parameters." >&2
+    pring_usage
+    exit 1
+fi
+
+folder_path=${1%/}
+media_file_extension="$2"
+subtitles_file_extension="$3"
+suffix="$4"
+
+# Assure source directory exists and is a directory
+if [[ ! -d "$folder_path" ]]; then
+	echo -e "\"$folder_path\" is an invalid directory."
+fi
+
+
+while IFS= read -r filename;
+do
+    echo "$filename"
+    episode=$(echo "$filename" | grep -oP "[Ss]\d{2}[Ee]\d{2}")
+    if [[ -z "$episode" ]]; then continue; fi
+
+    subtitles_file=$(find "$folder_path" -name "*$episode*.$subtitles_file_extension")
+    if [[ -z "$subtitles_file" ]]; then continue; fi
+    subtitles_extension="${subtitles_file##*.}"
+
+    new_file_name="${filename%."$media_file_extension"}$suffix.$subtitles_extension"
+    mv "$subtitles_file" "$new_file_name"
+done <<< "$(find "$folder_path" -name "*.$media_file_extension")"
