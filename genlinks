@@ -2,15 +2,18 @@
 
 #  --------------------- genlinks ---------------------
 #  A script for generating symlinks.
-#  If a directory is passed, the script will duplicate it's structure
-#  to the destination with symlinks instead of files.
+#  If a directory is passed, the script will duplicate its
+#  structure to the destination with symlinks of the original files.
 #
 #  Usage:
 #    genlinks <Source File / Directory> <Destination Directory> [<File Extensions>...]
 #
-#  Notes:
-#    Passing file extensions will filter the files and create symlinks
-#    only for files with file extensions that match the ones that were passed.
+#  Arguments:
+#    1. File / Directory - A file or directory to create links from.
+#    2. Destination Directory - Destination folder to create links on.
+#    3+. File Extensions (optional) - A filter of file extensions to
+# 		  create links from. If this option is used, files with different
+#         extensions will not be used when creating symlinks.
 #  ----------------------------------------------------
 
 

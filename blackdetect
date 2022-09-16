@@ -1,18 +1,18 @@
 #!/bin/bash
 
 #  ------------------- blackdetect -------------------
-#  A script for generating a blackdetect log for an mkv file
-#  or all mkv files within a directory.
+#  A script for generating an FFmpeg blackdetect log
+#  for an mkv file or all mkv files within a directory.
 #
 #  Requirements:
-#    FFmpeg
+#    - FFmpeg
 #
 #  Usage:
 #    blackdetect <File / Directory>
 #
-#  Notes:
-#    Passing a directory will create a log that includes
-#    blackdetect info for all mkv files within the folder.
+#  Arguments:
+#    1. File / Directory - A media file or a directory
+#        with media files in it to run blackdetect on.
 #  ---------------------------------------------------
 
 
