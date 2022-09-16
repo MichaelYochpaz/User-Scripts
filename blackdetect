@@ -33,14 +33,14 @@ function blackdetect
     ffprobe_output="$(ffprobe -hide_banner -f lavfi -i "movie='$1', \
     blackdetect=d=0.1:pix_th=0.00" -select_streams v:1 -show_entries tags=lavfi.black_start,lavfi.black_end -of default=nw=1 2>&1 | grep '\[blackdetect @')"
     
-    while read line; do
+    while read -r line; do
         start_time_str=$(cut -f4 -d' ' <<< "$line")
         end_time_str=$(cut -f5 -d' ' <<< "$line")
         length_str=$(cut -f6 -d' ' <<< "$line")
 
-        start_time=$(date -d@${start_time_str#black_start:} -u +%H:%M:%S)
-        end_time=$(date -d@${end_time_str#black_end:} -u +%H:%M:%S)
-        length=$(date -d@${length_str#black_duration:} -u +%H:%M:%S)
+        start_time=$(date -d@"${start_time_str#black_start:}" -u +%H:%M:%S)
+        end_time=$(date -d@"${end_time_str#black_end:}" -u +%H:%M:%S)
+        length=$(date -d@"${length_str#black_duration:}" -u +%H:%M:%S)
 
         echo -e "Start: $start_time\nEnd: $end_time\nLength: $length\n"
     done <<< "$ffprobe_output"

@@ -32,7 +32,7 @@ fi
 
 # Assure source file / directory exists
 if [[ ! -e "$1" ]]; then
-	echo -e "Source file / folder "$1" doesn't exist."
+	echo -e "Source file / folder $1 doesn't exist."
 fi
 
 # Remove trailing '/' if it exists
@@ -49,24 +49,24 @@ elif  [[ -d "$source_dir" ]]; then
 	regex=".*"
 
 	# If file extensions were passed
-	if [[ $# > 2 ]]; then
+	if [[ $# -gt 2 ]]; then
 		# Generate and replace default iregex expression
-		regex="$(echo ".*\("${@:3}"\)$" | sed 's/ /\\|/g')"
+		regex="$(echo ".*\(${*:3}\)$" | sed 's/ /\\|/g')"
 	fi
 	
-	cd -- "$source_dir"
+	cd -- "$source_dir" || exit 1
 
 	# Generate symlinks for files in root directory
-	find * -maxdepth 0 -type f -iregex "$regex" \
+	find -- * -maxdepth 0 -type f -iregex "$regex" \
 	-exec ln --symbolic -- "$source_dir"/{} "$destination_dir"/{} \;
 
 	# List of files matching the file extensions filter that are in subdirectories
-	subdir_files="$(find * -mindepth 1 -type f -iregex "$regex")"
+	subdir_files="$(find -- * -mindepth 1 -type f -iregex "$regex")"
 
 	# Check whether there are subdirectories
-	if [[ ! -z $subdir_files ]]; then
+	if [[ -n $subdir_files ]]; then
 		# Generate subdirectories
-		while read path; do
+		while read -r path; do
 			new_subdir_path="$destination_dir"/$(dirname "$path")
 
 			if [[ ! -d "$new_subdir_path" ]]; then
@@ -75,7 +75,7 @@ elif  [[ -d "$source_dir" ]]; then
 		done <<< "$subdir_files"
 
 		# Generate symlinks
-		while read path; do
+		while read -r path; do
 			ln --symbolic -- "$source_dir"/"$path" "$destination_dir"/"$path"
 		done <<< "$subdir_files"
 	fi
