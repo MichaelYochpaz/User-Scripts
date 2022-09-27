@@ -41,8 +41,11 @@ fi
 
 while IFS= read -r filename;
 do
-    echo "$filename"
-    episode=$(echo "$filename" | grep -oP "[Ss]\d{2}[Ee]\d{2}")
+    # Assure file extension is valid
+    if [[ "$filename" != *$media_file_extension ]]; then continue; fi
+
+    # Assure file name contains a season and an episode number
+    episode=$(grep -oP "[Ss]\d{2}[Ee]\d{2}" <<< "$filename")
     if [[ -z "$episode" ]]; then continue; fi
 
     subtitles_file=$(find "$folder_path" -name "*$episode*.$subtitles_file_extension")
@@ -50,5 +53,8 @@ do
     subtitles_extension="${subtitles_file##*.}"
 
     new_file_name="${filename%."$media_file_extension"}$suffix.$subtitles_extension"
-    mv "$subtitles_file" "$new_file_name"
+
+    if [[ "$subtitles_file" != "$new_file_name" ]]; then
+        mv "$subtitles_file" "$new_file_name"
+    fi
 done <<< "$(find "$folder_path" -name "*.$media_file_extension")"
