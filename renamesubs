@@ -48,7 +48,7 @@ do
     episode=$(grep -oP "[Ss]\d{2}[Ee]\d{2}" <<< "$filename")
     if [[ -z "$episode" ]]; then continue; fi
 
-    subtitles_file=$(find "$folder_path" -name "*$episode*.$subtitles_file_extension")
+    subtitles_file=$(find "$folder_path" -name "*$episode*.$subtitles_file_extension" -maxdepth 1)
     if [[ -z "$subtitles_file" ]]; then continue; fi
     subtitles_extension="${subtitles_file##*.}"
 
@@ -57,4 +57,4 @@ do
     if [[ "$subtitles_file" != "$new_file_name" ]]; then
         mv "$subtitles_file" "$new_file_name"
     fi
-done <<< "$(find "$folder_path" -name "*.$media_file_extension")"
+done <<< "$(find "$folder_path" -name "*.$media_file_extension" -maxdepth 1)"
