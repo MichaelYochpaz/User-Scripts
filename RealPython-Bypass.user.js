@@ -2,14 +2,14 @@
 // @name        RealPython Registartion Pop-up Bypass
 // @description Remove registration / login pop-up on realpython.com.
 // @namespace   https://github.com/MichaelYochpaz/User-Scripts
-// @homepageURL  https://github.com/MichaelYochpaz/User-Scripts
-// @downloadURL https://raw.githubusercontent.com/MichaelYochpaz/User-Scripts/main/RealPython-Bypass.js
-// @updateURL   https://raw.githubusercontent.com/MichaelYochpaz/User-Scripts/main/RealPython-Bypass.js
-// @supportURL   https://github.com/MichaelYochpaz/User-Scripts/issues
+// @homepageURL https://github.com/MichaelYochpaz/User-Scripts
+// @downloadURL https://github.com/MichaelYochpaz/User-Scripts/raw/main/RealPython-Bypass.user.js
+// @updateURL   https://github.com/MichaelYochpaz/User-Scripts/raw/main/RealPython-Bypass.user.js
+// @supportURL  https://github.com/MichaelYochpaz/User-Scripts/issues
 // @icon        https://cdn.realpython.com/static/favicon.ico
 // @author      Michael Yochpaz
 // @license     MIT
-// @version     1.0.2
+// @version     1.0.3
 // @include     *://realpython.com/*
 // @grant       GM_addStyle
 // @run-at      document-idle
