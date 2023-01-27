@@ -9,15 +9,12 @@
 // @icon        https://cdn.realpython.com/static/favicon.ico
 // @author      Michael Yochpaz
 // @license     MIT
-// @version     1.0.3
+// @version     1.0.4
 // @include     *://realpython.com/*
 // @grant       GM_addStyle
 // @run-at      document-idle
 // ==/UserScript==
 
-// Hide modal
-GM_addStyle (`.modal {display: none !important}`);
-GM_addStyle (`.modal-backdrop.show {opacity: 0 !important}`);
-
-// Restore Scrolling
-GM_addStyle (`.modal-open {overflow: scroll !important}`);
+document.getElementsByClassName("modal-backdrop")[0].remove(); // Remove Backdrop (black background)
+GM_addStyle (`.modal {display: none !important}`); // Remove Modal (registration pop-up)
+GM_addStyle (`.modal-open {overflow: scroll !important}`); // Restore Scrolling
