@@ -3,8 +3,8 @@
 // @description Remove registration / login pop-up on realpython.com.
 // @namespace   https://github.com/MichaelYochpaz/User-Scripts
 // @homepageURL https://github.com/MichaelYochpaz/User-Scripts
-// @downloadURL https://github.com/MichaelYochpaz/User-Scripts/raw/main/RealPython-Bypass.user.js
-// @updateURL   https://github.com/MichaelYochpaz/User-Scripts/raw/main/RealPython-Bypass.user.js
+// @downloadURL https://github.com/MichaelYochpaz/User-Scripts/raw/main/browser-userscripts/RealPython-Bypass.user.js
+// @updateURL   https://github.com/MichaelYochpaz/User-Scripts/raw/main/browser-userscripts/RealPython-Bypass.user.js
 // @supportURL  https://github.com/MichaelYochpaz/User-Scripts/issues
 // @icon        https://cdn.realpython.com/static/favicon.ico
 // @author      Michael Yochpaz
