@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #  --------------------- extrack ---------------------
 #  A script for extracting a specific track id from

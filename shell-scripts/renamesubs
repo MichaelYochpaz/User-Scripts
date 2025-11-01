@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #  ------------------- renamesubs -------------------
 #  A script for renaming subtitles file names to match

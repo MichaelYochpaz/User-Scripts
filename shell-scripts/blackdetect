@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #  ------------------- blackdetect -------------------
 #  A script for generating an FFmpeg blackdetect log

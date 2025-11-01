@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #  --------------------- genlinks ---------------------
 #  A script for generating symlinks.
