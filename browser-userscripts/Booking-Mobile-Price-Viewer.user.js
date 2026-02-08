@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booking.com Mobile Price Viewer
 // @namespace    https://github.com/MichaelYochpaz/User-Scripts
-// @version      1.0.0
+// @version      1.0.1
 // @description  Displays mobile-exclusive prices on the desktop version of Booking.com
 // @author       Michael Yochpaz
 // @match        *://*.booking.com/*
@@ -259,6 +259,50 @@
             });
         }
         log('=== END DEBUG ===');
+    }
+    
+    /**
+     * Analyzes MutationObserver records to determine if re-injection or reprocessing is needed
+     * @param {MutationRecord[]} mutations - The mutation records to analyze
+     * @param {string} cardSelector - CSS selector for the card/row elements to watch for
+     * @returns {{shouldReinject: boolean, shouldReprocess: boolean}} Analysis result
+     */
+    function analyzeMutations(mutations, cardSelector) {
+        let shouldReinject = false;
+        let shouldReprocess = false;
+        
+        for (const mutation of mutations) {
+            if (mutation.type !== 'childList') continue;
+            
+            // Check if new card/row elements were added
+            for (const node of mutation.addedNodes) {
+                if (node.nodeType !== Node.ELEMENT_NODE) continue;
+                // Skip mutations caused by our own badge injection
+                if (node.classList?.contains(CONFIG.badgeClassName)) continue;
+                
+                if (node.matches?.(cardSelector) || node.querySelector?.(cardSelector)) {
+                    shouldReprocess = true;
+                    break;
+                }
+            }
+            
+            // Check if our badges were removed (e.g., by Booking.com's JS re-rendering)
+            if (!shouldReinject) {
+                for (const node of mutation.removedNodes) {
+                    if (node.nodeType !== Node.ELEMENT_NODE) continue;
+                    
+                    if (node.classList?.contains(CONFIG.badgeClassName) ||
+                        node.querySelector?.(`.${CONFIG.badgeClassName}`)) {
+                        shouldReinject = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (shouldReprocess) break;
+        }
+        
+        return { shouldReinject, shouldReprocess };
     }
     
     /**
@@ -770,6 +814,7 @@
     
     // Track current observer for cleanup
     let currentObserver = null;
+    let stylesInjected = false;
     let currentUrl = location.href;
     let currentPageType = detectPageType();
     
@@ -788,10 +833,18 @@
         log(`Detected page type: ${pageType}`);
         
         // Inject CSS styles (only once)
-        if (!document.querySelector('style[data-mobile-price-viewer]')) {
-            const styleElement = GM_addStyle(CONFIG.style);
-            styleElement.setAttribute('data-mobile-price-viewer', 'true');
+        if (!stylesInjected) {
+            GM_addStyle(CONFIG.style);
+            stylesInjected = true;
             log('CSS styles injected');
+        }
+        
+        // Disconnect any existing observer before waiting, to prevent
+        // redundant fetches from the old observer during the delay
+        if (currentObserver) {
+            log('Disconnecting previous observer...');
+            currentObserver.disconnect();
+            currentObserver = null;
         }
         
         // Wait for page to be fully loaded
@@ -803,13 +856,6 @@
         
         // Give the page a moment to render
         await new Promise(resolve => setTimeout(resolve, CONFIG.initialWaitTime));
-        
-        // Disconnect any existing observer before setting up new one
-        if (currentObserver) {
-            log('Disconnecting previous observer...');
-            currentObserver.disconnect();
-            currentObserver = null;
-        }
         
         // Fetch mobile page once and use for both initial injection and observer
         try {
@@ -847,9 +893,9 @@
             
             currentUrl = location.href;
             
-            if (newPageType !== currentPageType && newPageType !== 'unknown') {
+            if (newPageType !== 'unknown') {
                 currentPageType = newPageType;
-                log('Page type changed, reinitializing...');
+                log('URL changed, reinitializing...');
                 init().catch(err => logError('Reinitialization failed:', err));
             }
         }, CONFIG.spaCheckInterval);
