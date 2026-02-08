@@ -1,22 +1,22 @@
 // ==UserScript==
 // @name         Booking.com Mobile Price Viewer
 // @namespace    https://github.com/MichaelYochpaz/User-Scripts
-// @version      1.0.1
+// @version      1.1.0
 // @description  Displays mobile-exclusive prices on the desktop version of Booking.com
 // @author       Michael Yochpaz
 // @match        *://*.booking.com/*
-// @grant        GM.xmlHttpRequest
 // @grant        GM_xmlhttpRequest
 // @grant        GM_addStyle
 // @connect      booking.com
 // @noframes
+// @run-at       document-idle
 // @icon         https://cf.bstatic.com/static/img/favicon/40749a316c45e239a7149b6711ea4c48d10f8d89.ico
 // @license      MIT
 // @downloadURL  https://raw.githubusercontent.com/MichaelYochpaz/User-Scripts/main/browser-userscripts/Booking-Mobile-Price-Viewer.user.js
 // @updateURL    https://raw.githubusercontent.com/MichaelYochpaz/User-Scripts/main/browser-userscripts/Booking-Mobile-Price-Viewer.user.js
 // ==/UserScript==
 
-(async function() {
+(function() {
     'use strict';
 
     // ============================================================================
@@ -34,8 +34,8 @@
         
         // Display configuration
         badgeIcon: '📱',
-        badgeTextFormat: 'Mobile: {price}',
-        tooltipText: 'This property has a lower price on mobile devices',
+        badgeTextFormat: '{price}',
+        tooltipText: 'Mobile-exclusive price — book via a mobile device to get this rate (added by Mobile Price Viewer userscript)',
         badgeClassName: 'mobile-price-badge',
         
         debug: false,
@@ -46,9 +46,6 @@
             // Search results page selectors
             hotelCard: '[data-testid="property-card"]',
             hotelTitle: '[data-testid="title"]',
-            reviewScore: '[data-testid="review-score"]',
-            mobileDealBadge: '[data-testid="property-card-deal"]',
-            mobileDiscountedPrice: '[data-testid="price-and-discounted-price"]',
             
             // Property page selectors
             propertyRoomRow: 'tbody tr[data-block-id]',
@@ -59,38 +56,45 @@
             mobilePrice_Property: '.bui-price-display__value .prco-valign-middle-helper',
         },
         
-        // CSS styles for the mobile price badge
+        // CSS styles for the mobile price badge and card highlight
         style: `
+            /* Card-level highlight for properties with mobile deals */
+            [data-testid="property-card"].mobile-deal-card {
+                background: linear-gradient(to left, rgba(185, 220, 190, 0.45), transparent 50%), #fff !important;
+                border-inline-end: 3px solid #66bb6a !important;
+            }
+            
+            [dir="rtl"] [data-testid="property-card"].mobile-deal-card {
+                background: linear-gradient(to right, rgba(185, 220, 190, 0.45), transparent 50%), #fff !important;
+            }
+            
             .mobile-price-badge {
-                display: flex;
+                display: inline-flex;
                 align-items: center;
-                gap: 5px;
-                padding: 4px 10px;
-                margin-top: 6px;
-                margin-bottom: 0;
-                background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+                gap: 4px;
+                padding: 3px 10px;
+                margin-top: 4px;
+                background: #dcefdc;
                 border: 1px solid #81c784;
                 border-radius: 4px;
-                font-size: 12px;
-                font-weight: 600;
+                font-size: 14px;
+                font-weight: 700;
                 color: #2e7d32;
-                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-                transition: all 0.2s ease;
                 cursor: help;
                 position: relative;
-                width: 100%;
-                max-width: max-content;
+                direction: ltr;
+                unicode-bidi: isolate;
+                transition: background 0.15s ease;
             }
             
             .mobile-price-badge:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-                background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+                background: #c8e6c9;
             }
             
             .mobile-price-badge-icon {
                 font-size: 14px;
                 flex-shrink: 0;
+                line-height: 1;
             }
             
             .mobile-price-badge-text {
@@ -102,18 +106,21 @@
                 content: attr(data-tooltip);
                 position: absolute;
                 bottom: 100%;
-                left: 50%;
-                transform: translateX(-50%) translateY(-8px);
-                padding: 8px 12px;
-                background: #1a1a1a;
+                left: 0;
+                transform: translateY(-6px);
+                padding: 6px 10px;
+                background: #333;
                 color: #fff;
-                font-size: 12px;
-                font-weight: 500;
+                font-size: 11px;
+                font-weight: 400;
                 border-radius: 4px;
-                white-space: nowrap;
+                width: max-content;
+                max-width: 260px;
+                white-space: normal;
+                line-height: 1.4;
                 opacity: 0;
                 pointer-events: none;
-                transition: opacity 0.2s ease, transform 0.2s ease;
+                transition: opacity 0.15s ease;
                 z-index: 1000;
             }
             
@@ -121,24 +128,21 @@
                 content: '';
                 position: absolute;
                 bottom: 100%;
-                left: 50%;
-                transform: translateX(-50%);
-                border: 6px solid transparent;
-                border-top-color: #1a1a1a;
+                left: 12px;
+                border: 5px solid transparent;
+                border-top-color: #333;
                 opacity: 0;
                 pointer-events: none;
-                transition: opacity 0.2s ease;
+                transition: opacity 0.15s ease;
                 z-index: 1000;
             }
             
-            .mobile-price-badge:hover::after,
-            .mobile-price-badge:hover::before {
+            .mobile-price-badge:hover::after {
                 opacity: 1;
-                transform: translateX(-50%) translateY(-4px);
             }
             
             .mobile-price-badge:hover::before {
-                transform: translateX(-50%) translateY(0);
+                opacity: 1;
             }
         `
     };
@@ -173,13 +177,9 @@
      */
     function debounce(func, wait) {
         let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
+        return function(...args) {
             clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
+            timeout = setTimeout(() => func(...args), wait);
         };
     }
     
@@ -200,20 +200,25 @@
     }
     
     /**
-     * Checks if a card has a mobile-only deal
-     * @param {Element} card - The card element to check
-     * @param {string} selector - Selector for deal badges
-     * @returns {boolean} Whether the card has a mobile deal
+     * Formats a price from a raw numeric value and currency code.
+     * Uses a fixed locale to ensure consistent symbol-first formatting
+     * regardless of the page's language (e.g., "₪ 2,407" instead of "2,407 ₪").
+     * @param {number} amount - The unformatted numeric price
+     * @param {string} currency - ISO 4217 currency code (e.g., "ILS", "EUR")
+     * @returns {string} Formatted price string, or empty string on failure
      */
-    function checkForMobileDeal(card, selector) {
-        const dealBadges = card.querySelectorAll(selector);
-        for (const badge of dealBadges) {
-            const ariaLabel = badge.getAttribute('aria-label');
-            if (ariaLabel?.toLowerCase().includes('mobile-only price')) {
-                return true;
-            }
+    function formatPrice(amount, currency) {
+        if (amount == null || !currency) return '';
+        try {
+            return new Intl.NumberFormat('en', {
+                style: 'currency',
+                currency: currency,
+                maximumFractionDigits: 0,
+                minimumFractionDigits: 0,
+            }).format(Math.round(amount));
+        } catch {
+            return '';
         }
-        return false;
     }
     
     /**
@@ -228,37 +233,7 @@
         
         return priceElement.textContent
             .trim()
-            .replace(/\s+/g, ' ')
-            .replace(/\u00A0/g, ' ');
-    }
-    
-    /**
-     * Logs debug information about a card's structure
-     * @param {Element} card - The card element to debug
-     */
-    function logCardDebugInfo(card) {
-        const title = card.querySelector(CONFIG.selectors.hotelTitle);
-        log('=== MOBILE CARD STRUCTURE DEBUG ===');
-        log('Hotel name:', title?.textContent?.trim() || 'NOT FOUND');
-        log('First 1000 chars of card HTML:', card.outerHTML.substring(0, 1000));
-        
-        const cardText = card.textContent;
-        const hasMobileText = /mobile|app|exclusive/i.test(cardText);
-        log('Contains mobile/app/exclusive text:', hasMobileText);
-        
-        const allText = Array.from(card.querySelectorAll('*'))
-            .map(el => el.textContent.trim())
-            .filter(text => /[$€£¥₪]\s*\d{2,}|\d{2,}\s*[$€£¥₪]/.test(text));
-        log('Found price-like text:', allText.slice(0, 5));
-        
-        const dealElements = card.querySelectorAll('[class*="deal"], [class*="mobile"], [class*="price"], [class*="exclusive"]');
-        log('Found deal/mobile/price related elements:', dealElements.length);
-        if (dealElements.length > 0) {
-            Array.from(dealElements).slice(0, 3).forEach((el, i) => {
-                log(`  Element ${i}:`, el.className, '-', el.textContent.trim().substring(0, 50));
-            });
-        }
-        log('=== END DEBUG ===');
+            .replace(/\s+/g, ' ');
     }
     
     /**
@@ -337,39 +312,93 @@
     // ============================================================================
     
     /**
-     * Fetches the mobile version of the current page
+     * Fetches the mobile version of the current page.
+     * Uses callback-based GM_xmlhttpRequest wrapped in a Promise for
+     * compatibility across Violentmonkey, Tampermonkey, and Greasemonkey.
      * @param {string} url - The URL to fetch
      * @returns {Promise<string>} The HTML content of the mobile page
      */
-    async function fetchMobilePage(url) {
+    function fetchMobilePage(url) {
         log('Fetching mobile page:', url);
         
-        try {
-            const response = await GM.xmlHttpRequest({
+        return new Promise((resolve, reject) => {
+            GM_xmlhttpRequest({
                 method: 'GET',
                 url,
                 headers: {
                     'User-Agent': CONFIG.mobileUserAgent,
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                    'Accept-Language': 'en-US,en;q=0.9',
                 },
                 timeout: CONFIG.networkTimeout,
+                onload: (response) => {
+                    if (response.status !== 200) {
+                        logError('Failed to fetch mobile page:', `HTTP ${response.status}`);
+                        reject(new Error(`HTTP ${response.status}: ${response.statusText}`));
+                    } else {
+                        log('Mobile page fetched successfully');
+                        resolve(response.responseText);
+                    }
+                },
+                onerror: (error) => {
+                    logError('Failed to fetch mobile page:', error);
+                    reject(new Error('Network error'));
+                },
+                ontimeout: () => {
+                    logError('Mobile page request timed out');
+                    reject(new Error('Request timed out'));
+                },
             });
+        });
+    }
+    
+    /**
+     * Recursively traverses JSON data to find hotels with mobile-exclusive deals.
+     * Looks for the priceDisplayInfoIrene object which contains language-invariant
+     * badge identifiers (e.g., "Mobile Rate") and discount product IDs (e.g., "mobile-discount").
+     * @param {any} obj - JSON object to traverse
+     * @param {Map<string, object>} priceMap - Map to populate with results
+     */
+    function extractMobilePricesFromJSON(obj, priceMap) {
+        if (!obj || typeof obj !== 'object') return;
+        
+        if (obj.priceDisplayInfoIrene && obj.displayName?.text) {
+            const info = obj.priceDisplayInfoIrene;
+            const badges = info.badges || [];
+            const discounts = info.discounts || [];
             
-            if (response.status !== 200) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            const isMobileDeal = badges.some(b => b.identifier === 'Mobile Rate') ||
+                                 discounts.some(d => d.productId === 'mobile-discount');
+            
+            if (isMobileDeal) {
+                const hotelName = obj.displayName.text.trim();
+                const priceData = info.displayPrice?.amountPerStay;
+                const priceText = formatPrice(priceData?.amountUnformatted, priceData?.currency)
+                                  || priceData?.amount?.trim();
+                
+                if (hotelName && priceText) {
+                    priceMap.set(hotelName, {
+                        price: priceText,
+                        rawPrice: priceData?.amountUnformatted,
+                        hasMobileDeal: true,
+                    });
+                    log(`✓ Found mobile-only deal for "${hotelName}": ${priceText}`);
+                }
             }
-            
-            log('Mobile page fetched successfully');
-            return response.responseText;
-        } catch (error) {
-            logError('Failed to fetch mobile page:', error);
-            throw error;
+        }
+        
+        if (Array.isArray(obj)) {
+            for (const item of obj) extractMobilePricesFromJSON(item, priceMap);
+        } else {
+            for (const key of Object.keys(obj)) {
+                extractMobilePricesFromJSON(obj[key], priceMap);
+            }
         }
     }
     
     /**
-     * Parses mobile HTML and extracts hotel price data
+     * Parses mobile HTML and extracts hotel price data from embedded JSON.
+     * Uses the priceDisplayInfoIrene GraphQL data structure which contains
+     * language-invariant identifiers, making detection work across all locales.
      * @param {string} mobileHtml - The HTML content from the mobile page
      * @returns {Map<string, object>} Map of hotel names to price information
      */
@@ -377,48 +406,28 @@
         log('Parsing mobile HTML for prices...');
         
         try {
-            // Parse the HTML string into a DOM document
             const parser = new DOMParser();
             const mobileDoc = parser.parseFromString(mobileHtml, 'text/html');
-            
-            // Find all hotel cards in the mobile page
-            const mobileCards = mobileDoc.querySelectorAll(CONFIG.selectors.hotelCard);
-            log(`Found ${mobileCards.length} hotel cards in mobile HTML`);
-            
-            // Debug: Log first card's structure
-            if (CONFIG.debug && mobileCards.length > 0) {
-                logCardDebugInfo(mobileCards[0]);
-            }
-            
-            // Create a map to store prices by hotel name
             const priceMap = new Map();
             
-            mobileCards.forEach((card, index) => {
+            // Extract pricing data from embedded JSON <script> tags.
+            // The priceDisplayInfoIrene object contains badge identifiers
+            // (e.g., "Mobile Rate") that remain in English regardless of page language.
+            for (const script of mobileDoc.querySelectorAll('script[type="application/json"]')) {
+                const content = script.textContent;
+                if (!content.includes('priceDisplayInfoIrene')) continue;
+                
                 try {
-                    const titleElement = card.querySelector(CONFIG.selectors.hotelTitle);
-                    if (!titleElement) {
-                        if (index < 3) log(`Card ${index}: No title found, skipping`);
-                        return;
-                    }
-                    
-                    const hotelName = titleElement.textContent.trim();
-                    const hasMobileDeal = checkForMobileDeal(card, CONFIG.selectors.mobileDealBadge);
-                    
-                    if (hasMobileDeal) {
-                        const priceText = extractPriceText(card, CONFIG.selectors.mobileDiscountedPrice);
-                        if (priceText) {
-                            priceMap.set(hotelName, { price: priceText, hasMobileDeal: true });
-                            log(`✓ Found mobile-only deal for "${hotelName}": ${priceText}`);
-                        }
-                    }
-                } catch (error) {
-                    logError(`Error parsing card ${index}:`, error);
+                    const data = JSON.parse(content);
+                    extractMobilePricesFromJSON(data, priceMap);
+                } catch (parseError) {
+                    logError('Failed to parse embedded JSON:', parseError);
                 }
-            });
+            }
             
             log(`Price map created with ${priceMap.size} entries`);
-            if (priceMap.size === 0 && mobileCards.length > 0) {
-                log('⚠️ WARNING: Found hotel cards but no mobile prices. Check the DEBUG output above to identify correct selectors.');
+            if (priceMap.size === 0) {
+                log('⚠️ WARNING: No mobile prices found in embedded JSON. The data structure may have changed.');
             }
             return priceMap;
             
@@ -474,6 +483,47 @@
     }
     
     /**
+     * Extracts desktop prices from the current page's embedded JSON data.
+     * Uses the same priceDisplayInfoIrene structure as mobile, ensuring
+     * consistent numeric comparison without currency parsing.
+     * @returns {Map<string, number>} Map of hotel names to raw numeric prices
+     */
+    function getDesktopPrices() {
+        const priceMap = new Map();
+        
+        for (const script of document.querySelectorAll('script[type="application/json"]')) {
+            const content = script.textContent;
+            if (!content.includes('priceDisplayInfoIrene')) continue;
+            
+            try {
+                const data = JSON.parse(content);
+                (function traverse(obj) {
+                    if (!obj || typeof obj !== 'object') return;
+                    
+                    if (obj.priceDisplayInfoIrene && obj.displayName?.text) {
+                        const name = obj.displayName.text.trim();
+                        const amount = obj.priceDisplayInfoIrene.displayPrice?.amountPerStay?.amountUnformatted;
+                        if (name && amount != null) {
+                            priceMap.set(name, amount);
+                        }
+                    }
+                    
+                    if (Array.isArray(obj)) {
+                        for (const item of obj) traverse(item);
+                    } else {
+                        for (const key of Object.keys(obj)) traverse(obj[key]);
+                    }
+                })(data);
+            } catch (e) {
+                logError('Failed to parse desktop JSON:', e);
+            }
+        }
+        
+        log(`Extracted ${priceMap.size} desktop prices from page JSON`);
+        return priceMap;
+    }
+    
+    /**
      * Injects mobile price badges into desktop hotel cards
      * @param {Map<string, object>} priceMap - Map of hotel names to price info
      */
@@ -485,9 +535,13 @@
         
         log('Injecting mobile prices into desktop cards...');
         
+        // Get desktop prices for comparison (from page's embedded JSON)
+        const desktopPrices = getDesktopPrices();
+        
         // Find all desktop hotel cards
         const desktopCards = document.querySelectorAll(CONFIG.selectors.hotelCard);
         let injectedCount = 0;
+        let skippedCount = 0;
         
         desktopCards.forEach((card, index) => {
             try {
@@ -505,6 +559,16 @@
                     return;
                 }
                 
+                // Compare mobile vs desktop price — only show badge if mobile is actually cheaper
+                const desktopPrice = desktopPrices.get(hotelName);
+                if (desktopPrice != null && mobileData.rawPrice != null) {
+                    if (Math.round(mobileData.rawPrice) >= Math.round(desktopPrice)) {
+                        skippedCount++;
+                        log(`Skipping "${hotelName}": mobile price (${Math.round(mobileData.rawPrice)}) is not lower than desktop (${Math.round(desktopPrice)})`);
+                        return;
+                    }
+                }
+                
                 if (card.querySelector(`.${CONFIG.badgeClassName}`)) return;
                 
                 const priceSection = findPriceSection(card);
@@ -516,15 +580,18 @@
                 const badge = createBadgeElement(mobileData.price, hotelName, 'data-hotel-name');
                 priceSection.insertAdjacentElement('afterend', badge);
                 
+                // Add highlight to the card (green tint + border accent)
+                card.classList.add('mobile-deal-card');
+                
                 injectedCount++;
-                log(`Injected price for "${hotelName}": ${mobileData.price}`);
+                log(`Injected price for "${hotelName}": ${mobileData.price} (desktop: ${Math.round(desktopPrice || 0)})`);
                 
             } catch (error) {
                 logError(`Error injecting price for card ${index}:`, error);
             }
         });
         
-        log(`Successfully injected ${injectedCount} mobile price badges`);
+        log(`Injected ${injectedCount} badges, skipped ${skippedCount} (same or higher price)`);
     }
     
     /**
@@ -604,59 +671,23 @@
      * @returns {Element|null} The price section element
      */
     function findPriceSection(card) {
-        let priceSection = card.querySelector('[data-testid="price-and-discounted-price"]')?.closest('div[data-testid*="price"]');
+        const priceElement = card.querySelector('[data-testid="price-and-discounted-price"]');
+        
+        // Try to find a named price container via closest(), but ensure
+        // we don't walk outside the card boundary
+        let priceSection = priceElement?.closest('div[data-testid*="price"]');
+        if (priceSection && !card.contains(priceSection)) {
+            priceSection = null;
+        }
         
         if (!priceSection) {
-            const priceElement = card.querySelector('[data-testid="price-and-discounted-price"]') ||
-                                card.querySelector('[data-testid="price"]');
-            priceSection = priceElement?.parentElement?.parentElement;
+            const fallback = priceElement || card.querySelector('[data-testid="price"]');
+            priceSection = fallback?.parentElement?.parentElement;
         }
         
         return priceSection;
     }
     
-    /**
-     * Main processing function - fetches mobile data and injects prices
-     */
-    async function processHotelListings() {
-        log('Processing hotel listings...');
-        
-        try {
-            // Fetch mobile version of current page
-            const mobileHtml = await fetchMobilePage(window.location.href);
-            
-            // Parse mobile prices
-            const priceMap = parseMobilePrices(mobileHtml);
-            
-            // Inject prices into desktop page
-            injectMobilePrices(priceMap);
-            
-        } catch (error) {
-            logError('Error processing hotel listings:', error);
-        }
-    }
-    
-    /**
-     * Processes property page - fetches mobile version and injects room pricing
-     */
-    async function processPropertyPage() {
-        log('Processing property page...');
-        
-        try {
-            // Fetch mobile version of current page
-            const mobileHtml = await fetchMobilePage(window.location.href);
-            
-            // Parse mobile prices for room offerings
-            const priceMap = parseMobileRoomPrices(mobileHtml);
-            
-            // Inject prices into desktop page
-            injectRoomPrices(priceMap);
-            
-        } catch (error) {
-            logError('Error processing property page:', error);
-        }
-    }
-
     // ============================================================================
     // DYNAMIC CONTENT OBSERVER
     // ============================================================================
@@ -670,30 +701,17 @@
         log('Setting up MutationObserver for dynamic content...');
         
         let cachedPriceMap = initialPriceMap || new Map();
-        let activeController = null;
         
         const reinjectPrices = () => cachedPriceMap.size > 0 && injectMobilePrices(cachedPriceMap);
         const debouncedReinject = debounce(reinjectPrices, CONFIG.reinjectDelay);
         
         const debouncedProcess = debounce(async () => {
-            if (activeController) {
-                try {
-                    activeController.abort();
-                } catch (e) {
-                    // Ignore abort errors
-                }
-            }
-            
             try {
                 const mobileHtml = await fetchMobilePage(window.location.href);
                 cachedPriceMap = parseMobilePrices(mobileHtml);
                 injectMobilePrices(cachedPriceMap);
             } catch (error) {
-                if (error.message !== 'aborted') {
-                    logError('Failed to refetch mobile page:', error);
-                }
-            } finally {
-                activeController = null;
+                logError('Failed to refetch mobile page:', error);
             }
         }, CONFIG.debounceDelay);
         
@@ -723,16 +741,7 @@
         
         return {
             observer,
-            disconnect: () => {
-                observer.disconnect();
-                if (activeController) {
-                    try {
-                        activeController.abort();
-                    } catch (e) {
-                        // Ignore
-                    }
-                }
-            }
+            disconnect: () => observer.disconnect()
         };
     }
     
@@ -745,30 +754,17 @@
         log('Setting up MutationObserver for property page...');
         
         let cachedPriceMap = initialPriceMap || new Map();
-        let activeController = null;
         
         const reinjectPrices = () => cachedPriceMap.size > 0 && injectRoomPrices(cachedPriceMap);
         const debouncedReinject = debounce(reinjectPrices, CONFIG.reinjectDelay);
         
         const debouncedProcess = debounce(async () => {
-            if (activeController) {
-                try {
-                    activeController.abort();
-                } catch (e) {
-                    // Ignore abort errors
-                }
-            }
-            
             try {
                 const mobileHtml = await fetchMobilePage(window.location.href);
                 cachedPriceMap = parseMobileRoomPrices(mobileHtml);
                 injectRoomPrices(cachedPriceMap);
             } catch (error) {
-                if (error.message !== 'aborted') {
-                    logError('Failed to refetch mobile page:', error);
-                }
-            } finally {
-                activeController = null;
+                logError('Failed to refetch mobile page:', error);
             }
         }, CONFIG.debounceDelay);
         
@@ -795,16 +791,7 @@
         
         return {
             observer,
-            disconnect: () => {
-                observer.disconnect();
-                if (activeController) {
-                    try {
-                        activeController.abort();
-                    } catch (e) {
-                        // Ignore
-                    }
-                }
-            }
+            disconnect: () => observer.disconnect()
         };
     }
 
@@ -879,12 +866,14 @@
     }
     
     /**
-     * Detects SPA navigation and reinitializes when needed
+     * Detects SPA navigation and reinitializes when needed.
+     * Intercepts pushState/replaceState and listens for popstate to
+     * detect navigation immediately, with a polling fallback for edge cases.
      */
     function setupSPANavigationWatcher() {
         log('Setting up SPA navigation watcher...');
         
-        setInterval(() => {
+        function onNavigate() {
             if (location.href === currentUrl) return;
             
             const newPageType = detectPageType();
@@ -898,7 +887,31 @@
                 log('URL changed, reinitializing...');
                 init().catch(err => logError('Reinitialization failed:', err));
             }
-        }, CONFIG.spaCheckInterval);
+        }
+        
+        // Intercept history.pushState and history.replaceState on the page's
+        // actual history object. In sandboxed environments (when @grant is used),
+        // `window` is a proxy — we must use unsafeWindow to ensure page scripts'
+        // calls to pushState/replaceState are intercepted.
+        try {
+            const pageHistory = (typeof unsafeWindow !== 'undefined' ? unsafeWindow : window).history;
+            for (const method of ['pushState', 'replaceState']) {
+                const original = pageHistory[method].bind(pageHistory);
+                pageHistory[method] = function(...args) {
+                    original(...args);
+                    onNavigate();
+                };
+            }
+        } catch (e) {
+            log('Could not intercept history methods, relying on polling fallback');
+        }
+        
+        // Listen for back/forward navigation
+        window.addEventListener('popstate', onNavigate);
+        
+        // Polling fallback for edge cases (e.g., hash changes, other scripts
+        // overriding history methods after us)
+        setInterval(onNavigate, CONFIG.spaCheckInterval);
     }
     
     // Start the script
